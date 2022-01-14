@@ -1,5 +1,8 @@
+
+import React, { Component } from 'react';
 import logo from './wordle_logo_192x192.png';
 import words from './words.json';
+import './solutions.scss';
 import './App.css';
 
 Date.prototype.addDays = function(days) {
@@ -8,53 +11,79 @@ Date.prototype.addDays = function(days) {
   return date;
 }
 
-function App() {
-  const { La } = words;
-  const Ha = new Date(2021,5,19,0,0,0,0);
-  function Na(e, a) {
-      const s = new Date(e);
-      const t = new Date(a).setHours(0, 0, 0, 0) - s.setHours(0, 0, 0, 0);
-      return Math.round(t / 864e5);
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dayIndex: 0
+    };
+    this.changeDay = this.changeDay.bind(this);
   }
 
-  function Ga(e) {
-      return Na(Ha, e);
+  changeDay(direction) {
+    const { dayIndex } = this.state;
+
+    let newIndex = dayIndex + direction;
+
+    if (newIndex < -209) {
+      newIndex = 365;
+    } else if (newIndex > 365) {
+      newIndex = -209;
+    }
+
+    this.setState({ dayIndex: newIndex });
   }
 
-  function Da(e) {
-      let a;
-      const s = Ga(e);
-      a = s % La.length;
-      return La[a];
+  render() {
+    const { dayIndex } = this.state;
+    const { La } = words;
+    const Ha = new Date(2021,5,19,0,0,0,0);
+    function Na(e, a) {
+        const s = new Date(e);
+        const t = new Date(a).setHours(0, 0, 0, 0) - s.setHours(0, 0, 0, 0);
+        return Math.round(t / 864e5);
+    }
+  
+    function Ga(e) {
+        return Na(Ha, e);
+    }
+  
+    function Da(e) {
+        let a;
+        const s = Ga(e);
+        a = s % La.length;
+        return La[a];
+    }
+  
+    const allDays = [];
+    const today = new Date;
+  
+    for (let index = -209; index < 365; index++) {
+      allDays.push({
+        index,
+        solution: Da(today.addDays(index))
+      });
+    }
+  
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <div className="all-solutions">
+            {allDays.map(day => {
+              const { index, solution } = day;
+              const className = `solution solution-${index - dayIndex}`;
+              return (
+                <div key={solution} className={className}>{`${index > 0 ? '+' : ''} ${index !== 0 ? index : ''} ${solution}`}</div>
+              );
+            })}
+            <button onClick={() => this.changeDay(-1)} className="up" title="previous day" />
+            <button onClick={() => this.changeDay(1)} className="down" title="next day" />                
+          </div>        
+        </header>
+      </div>
+    );
   }
-
-  const today = new Date;
-  const solutionMinusThree = Da(today.addDays(-3));
-  const solutionMinusTwo = Da(today.addDays(-2));
-  const solutionMinusOne = Da(today.addDays(-1));
-  const solution = Da(today);
-  const solutionPlusOne = Da(today.addDays(1));
-  const solutionPlusTwo = Da(today.addDays(2));
-  const solutionPlusThree = Da(today.addDays(3));
-
-  console.log('The today', today)
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <div className="solutions">
-          <h4>+3 {solutionPlusThree}</h4>
-          <h3>+2 {solutionPlusTwo}</h3>
-          <h2>+1 {solutionPlusOne}</h2>
-          <h1 className="solution">{solution}</h1>
-          <h2>-1 {solutionMinusOne}</h2>
-          <h3>-2 {solutionMinusTwo}</h3>
-          <h4>-3 {solutionMinusThree}</h4>
-        </div>
-      </header>
-    </div>
-  );
 }
 
 export default App;
