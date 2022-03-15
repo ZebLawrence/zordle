@@ -51,7 +51,7 @@ class App extends Component {
     function Da(e) {
         let a;
         const s = Ga(e);
-        a = s % La.length;
+        a = (s % La.length) + 2;
         return La[a];
     }
   
